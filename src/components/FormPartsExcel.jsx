@@ -217,6 +217,10 @@ const FormPartsExcel = () => {
                                                         <Typography size="small" color="error">{formik.errors.file_name}</Typography>
                                                     ) : null}
                                                     <Typography size="small" variant="body2" color="error">Please upload only file with extension .xls or .xlsx</Typography>
+                                                    <Typography size="small" variant="body2" color="error">NOTE : Before download template spareparts, make sure supplier updated.</Typography>
+                                                    <Typography size="small" variant="body2" color="error">NOTE : Before uploading the file, all fields must be filled in.</Typography>
+                                                    <Typography size="small" variant="body2" color="error">NOTE : Field "parts_code" must be unique.</Typography>
+                                                    <Typography size="small" variant="body2" color="error">NOTE : The "supplier_id" column must be filled in according to the "supplier_id" column in the Supplier sheet.</Typography>
                                                 </div>
                                             </Grid>
                                             <Grid item xs={12} className={classes.actionButton}>
