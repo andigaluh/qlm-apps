@@ -217,6 +217,8 @@ const FormSupplierExcel = () => {
                                                         <Typography size="small" color="error">{formik.errors.file_name}</Typography>
                                                     ) : null}
                                                     <Typography size="small" variant="body2" color="error">Please upload only file with extension .xls or .xlsx</Typography>
+                                                    <Typography size="small" variant="body2" color="error">NOTE : Before download template spareparts, make sure supplier success uploaded into system.</Typography>
+                                                    <Typography size="small" variant="body2" color="error">NOTE : Before uploading the file, all fields must be filled in, if there is no value, fill it with the word "empty" without quotes.</Typography>
                                                 </div>
                                             </Grid>
                                             <Grid item xs={12} className={classes.actionButton}>
