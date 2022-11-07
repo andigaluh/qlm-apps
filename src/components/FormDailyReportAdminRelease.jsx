@@ -1,16 +1,15 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { Button, Card, CardContent, Checkbox, Container, Fab, FormControl, FormControlLabel, Grid, IconButton, Input, InputBase, InputLabel, LinearProgress, makeStyles, OutlinedInput, Snackbar, TextField, Typography } from "@material-ui/core";
-import { ArrowBack, Cancel, CloudDownload, Delete, GetApp, NextWeekTwoTone, Publish, Save } from "@material-ui/icons";
+import { Button, Card, CardContent, Checkbox, Container, Fab, FormControl, FormControlLabel, Grid, Input, InputBase, InputLabel, LinearProgress, makeStyles, OutlinedInput, Snackbar, TextField, Typography } from "@material-ui/core";
+import { ArrowBack, Cancel, Delete, NextWeekTwoTone, Save } from "@material-ui/icons";
 import { useParams } from "react-router-dom";
 import { UserContext } from "../UserContext";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import MuiAlert from '@material-ui/lab/Alert';
 import partsService from "../services/parts.service";
-import doc_inspectionService from "../services/doc_inspection.service";
+import daily_reportService from "../services/daily_report.service";
 import { formatdate } from "../helpers/DateCustom";
-import schedule_mtcService from "../services/scheduleQc_excel.service"
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -59,13 +58,10 @@ const useStyles = makeStyles((theme) => ({
     },
     checkboxLabel: {
         marginLeft: theme.spacing(1)
-    },
-    link: {
-        textDecoration: "none"
     }
 }));
 
-const FormScheduleMtcExcel = () => {
+const FormDailyReportAdminRelease = () => {
     const { user } = useContext(UserContext);
     const params = useParams();
     const docId = params.id;
@@ -73,8 +69,7 @@ const FormScheduleMtcExcel = () => {
     const classes = useStyles();
     const initialState = {
         id: null,
-        file_name: "",
-        user_id: user.id,
+        release_file_name: "",
     };
     const [openAlert, setOpenAlert] = useState(false);
     const [disableButton, setDisableButton] = useState(false);
@@ -91,14 +86,18 @@ const FormScheduleMtcExcel = () => {
         setOpenAlert(false);
     };
 
-    const createItem = (values, setSubmitting, resetForm) => {
+    /* const createItem = (values, setSubmitting, resetForm) => {
         setDisableButton(true);
         setTimeout(() => {
             let data = new FormData();
-            data.append("file", values.file_name);
-            data.append("user_id", values.user_id);
+            data.append("file", values.draft_file_name);
+            data.append("title", values.title);
+            data.append("description", values.description);
+            data.append("expired_date", values.expired_date);
+            data.append("status", values.status);
+            data.append("type_report", values.type_report);
 
-            schedule_mtcService.create(data, (event) => {
+            daily_reportService.create(data, (event) => {
                 setProgress(Math.round((100 * event.loaded) / event.total));
             })
                 .then(
@@ -126,18 +125,87 @@ const FormScheduleMtcExcel = () => {
                     console.log(error);
                 });
         }, 400);
+    } */
+
+    const createItem = (values, setSubmitting, resetForm) => {
+        setDisableButton(true);
+        setTimeout(() => {
+            daily_reportService.create(values)
+                .then(
+                    (response) => {
+                        setSubmitting(false);
+                        setOpenAlert(true);
+                        setSnackbarMsg(response.data.message);
+                        setDisableButton(false);
+                        resetForm();
+                    },
+                    (error) => {
+                        const _content =
+                            (error.response &&
+                                error.response.data &&
+                                error.response.data.message) ||
+                            error.message ||
+                            error.toString();
+                        setOpenAlert(true);
+                        setSnackbarMsg(_content);
+                        setDisableButton(false);
+                    }
+                )
+                .catch((error) => {
+                    setDisableButton(false);
+                    console.log(error);
+                });
+        }, 400);
     }
+
+    const updateItem = (id, values, setSubmitting) => {
+        setDisableButton(true);
+        setTimeout(() => {
+            let data = new FormData();
+            data.append("file", values.release_file_name);
+            daily_reportService.updateRelease(id, data)
+                .then(
+                    (response) => {
+                        console.log(response.data);
+                        setSubmitting(false);
+                        setOpenAlert(true);
+                        setSnackbarMsg(response.data.message);
+                        setDisableButton(false);
+                    },
+                    (error) => {
+                        const _content =
+                            (error.response &&
+                                error.response.data &&
+                                error.response.data.message) ||
+                            error.message ||
+                            error.toString();
+                        setOpenAlert(true);
+                        setSnackbarMsg(_content);
+                        setDisableButton(false);
+                    }
+                )
+                .catch((error) => {
+                    setDisableButton(false);
+                    console.log(error);
+                });
+        }, 400);
+    };
 
 
 
     useEffect(() => {
         if (!isAddMode) {
-            schedule_mtcService.get(docId).then(
+            daily_reportService.get(docId).then(
                 (response) => {
                     const responseData = {
                         id: response.data.id,
-                        file_name: response.data.file_name,
-                        user_id: response.data.status.user.id
+                        title: response.data.title,
+                        description: response.data.description,
+                        draft_file_name: response.data.draft_file_name,
+                        release_file_name: response.data.release_file_name,
+                        expired_date: formatdate(response.data.expired_date),
+                        status: response.data.status,
+                        type_report: response.data.type_report,
                     };
                     setCurrentDoc(responseData);
                 },
@@ -159,21 +227,21 @@ const FormScheduleMtcExcel = () => {
 
 
     return (
-        <Container className={classes.container}>
+        <Container className={classes.container} maxWidth="xl">
             {!user && (
                 <Navigate to="/login" replace={true} />
             )}
-            {((!user.roles.includes("ROLE_SUPERVISOR"))) ? (
+            {!user.roles.includes("ROLE_ADMIN") ? (
                 <Typography>Not Allowed</Typography>
             ) : (
                 <React.Fragment>
                     <div className={classes.titleContainer}>
-                        <Link to={"/schedule-qc"}>
+                        <Link to={"/daily-report-admin"}>
                             <Fab color="primary" className={classes.fab} size="small">
                                 <ArrowBack />
                             </Fab>
                         </Link>
-                        <Typography variant="h4" className={classes.title}>QC Schedule Form</Typography>
+                        <Typography variant="h4" className={classes.title}>Upload Release Daily report's Form</Typography>
                     </div>
                     <Card>
                         <CardContent>
@@ -181,53 +249,53 @@ const FormScheduleMtcExcel = () => {
                                 enableReinitialize
                                 initialValues={currentDoc}
                                 validationSchema={Yup.object({
-                                    file_name: (isAddMode) ? Yup.string().required("Required") : null,
+                                    /* title: Yup.string().required("Required"),
+                                    description: Yup.string().required("Required"),
+                                    expired_date: Yup.string().required("Required"), */
+                                    release_file_name: (isAddMode) ? Yup.string().required("Required") : null,
                                 })}
                                 onSubmit={(values, { setSubmitting, resetForm }) => {
-                                    createItem(values, setSubmitting, resetForm);
+                                    if (isAddMode) {
+                                        createItem(values, setSubmitting, resetForm);
+                                    } else {
+                                        updateItem(docId, values, setSubmitting);
+                                    }
                                 }}
                             >
                                 {formik => (
                                     <Form className={classes.form} autoComplete="off" onSubmit={formik.handleSubmit}>
                                         <Grid container spacing={2}>
-                                            <Grid item xs={12}>
-                                                <Typography variant="body2">Please use this xls template file before upload : &nbsp;
-                                                    <a href={`${process.env.REACT_APP_API}schedule_qc/download_template`} target="_blank" className={classes.link}>
-                                                        <Button variant="contained" className={classes.buttonContainer} >
-                                                            <CloudDownload className={classes.button} /> schedule-qc_template.xlsx
-                                                        </Button>
-                                                    </a>
-                                                </Typography>
-                                            </Grid>
+
                                             <Grid item xs={12}>
                                                 <div className={classes.item}>
                                                     <TextField
                                                         variant="outlined"
                                                         margin="normal"
                                                         fullWidth
-                                                        id="file_name"
-                                                        label="Upload File"
-                                                        autoComplete="file_name"
+                                                        id="release_file_name"
+                                                        label="Upload Release File"
+                                                        autoComplete="release_file_name"
                                                         type="file"
                                                         onChange={(event) => {
-                                                            formik.setFieldValue("file_name", event.target.files[0]);
+                                                            formik.setFieldValue("release_file_name", event.target.files[0]);
                                                         }}
                                                         InputLabelProps={{
                                                             shrink: true,
                                                         }}
                                                     />
-                                                    {formik.touched.file_name && formik.errors.file_name ? (
-                                                        <Typography size="small" color="error">{formik.errors.file_name}</Typography>
+                                                    {formik.touched.release_file_name && formik.errors.release_file_name ? (
+                                                        <Typography size="small" color="error">{formik.errors.release_file_name}</Typography>
                                                     ) : null}
-                                                    <Typography size="small" variant="body2" color="error">Please upload only file with extension .xls or .xlsx</Typography>
+                                                    <Typography size="small" variant="body2" color="error">Please upload only file with extension .pdf, .doc, .docx, .xls, .xlsx, .png, .jpg, .jpeg, .gif, .zip, .rar, .ppt, .pptx</Typography>
                                                 </div>
                                             </Grid>
+
                                             <Grid item xs={12} className={classes.actionButton}>
                                                 <div className={classes.item}>
                                                     <Button variant="contained" color="primary" className={classes.buttonContainer} type="submit" disabled={disableButton} >
                                                         <Save className={classes.button} />Save
                                                     </Button>
-                                                    <Link to={"/schedule-qc"} className={classes.link}>
+                                                    <Link to={"/daily-report-admin"} className={classes.link}>
                                                         <Button variant="contained" color="secondary" className={classes.buttonContainer} >
                                                             <Cancel className={classes.button} />Cancel
                                                         </Button>
@@ -252,4 +320,4 @@ const FormScheduleMtcExcel = () => {
     );
 };
 
-export default FormScheduleMtcExcel;
+export default FormDailyReportAdminRelease;

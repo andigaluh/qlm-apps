@@ -84,6 +84,16 @@ import FormWmModel from "./components/FormWmModel";
 import WmType from "./components/WmType";
 import FormWmType from "./components/FormWmType";
 import ReportOqc from "./components/ReportOqc";
+import QRscanner from "./components/QRscanner";
+import DailyReportAdmin from "./components/DailyReportAdmin";
+import FormDailyReportAdmin from "./components/FormDailyReportAdmin";
+import FormDailyReportAdminDraft from "./components/FormDailyReportAdminDraft";
+import FormDailyReportAdminRelease from "./components/FormDailyReportAdminRelease";
+import DailyReport from "./components/DailyReport";
+import OutgoingList from "./components/OutgoingList";
+import OutgoingScanner from "./components/OutgoingScanner";
+import FormOutgoing from "./components/FormOutgoing";
+import ReportOutgoing from "./components/ReportOutgoing";
 
 const useStyles = makeStyles((theme) => ({
   right: {
@@ -112,6 +122,11 @@ const App = () => {
         </Grid>
         <Grid item xs={10}>
           <Routes>
+            <Route path="outgoing-list" element={<OutgoingList />} />
+            <Route path="outgoing/scan" element={<OutgoingScanner />} />
+            <Route path="outgoing/form/:id" element={<FormOutgoing />} />
+            <Route path="outgoing/form" element={<FormOutgoing />} />
+            <Route path="report/outgoing" element={<ReportOutgoing />} />
             <Route path="wm-type" element={<WmType />} />
             <Route path="wm-type/form" element={<FormWmType />} />
             <Route path="wm-type/form/:id" element={<FormWmType />} />
@@ -161,6 +176,11 @@ const App = () => {
             <Route path="schedule-qc/form" element={<FormScheduleQc/>} />
             <Route path="schedule-qc/form/:id" element={<FormScheduleQc/>} />
             <Route path="schedule-qc/upload-excel" element={<FormScheduleQcExcel />} />
+            <Route path="daily-report-admin" element={<DailyReportAdmin />} />
+            <Route path="daily-report-admin/form" element={<FormDailyReportAdmin />} />
+            <Route path="daily-report-admin/form/:id" element={<FormDailyReportAdmin />} />
+            <Route path="daily-report-admin/draft/:id" element={<FormDailyReportAdminDraft />} />
+            <Route path="daily-report-admin/release/:id" element={<FormDailyReportAdminRelease />} />
             <Route path="doc-inspection" element={<DocInspection />} />
             <Route path="doc-inspection/form" element={<FormDocInspection />} />
             <Route path="doc-inspection/form/:id" element={<FormDocInspection />} />
@@ -193,6 +213,7 @@ const App = () => {
             <Route path="appr-check-machine" element={<ApprCheckMachine />} />
             <Route path="appr-check-machine/form/:id" element={<FormApprCheckMachine />} />
             <Route path="tools" element={<Tools />} />
+            <Route path="tools/scan" element={<QRscanner />} />
             <Route path="tools/form" element={<FormTools />} />
             <Route path="tools/upload-excel" element={<FormToolsExcel />} />
             <Route path="tools/form/:id" element={<FormTools />} />
@@ -218,6 +239,7 @@ const App = () => {
             <Route path="users/:id" element={<EditUser/>} />
             <Route path="users/reset/:id" element={<ResetPassUser/>} />
             <Route path="login" element={<Login/>} />
+            <Route path="quality-footprint" element={<DailyReport />} />
             <Route path="/" element={<Home/>} />
           </Routes>
         </Grid>

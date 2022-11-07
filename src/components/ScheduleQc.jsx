@@ -362,7 +362,7 @@ const ScheduleMtc = () => {
                     <Typography>Not Allowed</Typography>
                 ) : ( */}
                     <React.Fragment>
-                        <Typography variant="h4" className={classes.title}>Schedule Maintenance</Typography>
+                        <Typography variant="h4" className={classes.title}>QC Schedule</Typography>
                         <Card>
                             <CardContent>
                                 <FormSearchDate

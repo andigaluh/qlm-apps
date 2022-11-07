@@ -32,6 +32,10 @@ const download = () => {
   return api.get(`${API_URL}tools/download`);
 };
 
+const getByCode = (code) => {
+  return api.get(`${API_URL}tools/code/${code}`);
+};
+
 export default {
   getAll,
   create,
@@ -39,5 +43,6 @@ export default {
   get,
   update,
   remove,
-  download
+  download,
+  getByCode,
 };

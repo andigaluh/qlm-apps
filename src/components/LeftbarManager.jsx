@@ -111,6 +111,12 @@ const LeftbarManager = () => {
                         <Typography className={classes.text} >Outgoing</Typography>
                     </Link>
                 </div>
+                <div className={classes.nested}>
+                    <Link to="/report/outgoing" className={classes.link}>
+                        <Description className={classes.icon} />
+                        <Typography className={classes.text} >Sample Outgoing</Typography>
+                    </Link>
+                </div>
             </Collapse>
             {/* END REPORT */}
 

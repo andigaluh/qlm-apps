@@ -1,5 +1,6 @@
 import { Button, makeStyles, TextField } from "@material-ui/core";
 import { CloudDownload, Search } from "@material-ui/icons";
+import CameraAltIcon from '@material-ui/icons/CameraAlt';
 
 const useStyles = makeStyles((theme) => ({
     searchContainer: {
@@ -11,6 +12,9 @@ const useStyles = makeStyles((theme) => ({
     },
     searchItem: {
         marginRight: theme.spacing(2),
+    },
+    scanner: {
+        marginLeft: theme.spacing(2)
     }
 }));
 
@@ -32,6 +36,13 @@ const FormSearchDate = (props) => {
                     <CloudDownload />
                 </Button>
             </a>
+            {props.qrScanner && (
+                <a href={props.qrScanner} className={classes.scanner} alt="qr scan" title="QR CODE SCANNER">
+                    <Button variant="contained" color="default" >
+                        <CameraAltIcon />
+                    </Button>
+                </a>
+            )}
         </div>
     );
 };

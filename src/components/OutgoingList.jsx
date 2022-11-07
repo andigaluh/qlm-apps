@@ -3,12 +3,12 @@ import React, { useContext, useEffect, useState, useMemo } from "react"
 import { UserContext, ToolsContext } from "../UserContext";
 import { Navigate, Link, useNavigate } from "react-router-dom";
 import DataTable from 'react-data-table-component';
-import { Delete, Edit, Add as AddIcon } from "@material-ui/icons";
+import { Delete, Edit, Add as AddIcon, AccountBalanceWallet, Exposure } from "@material-ui/icons";
 import "react-data-table-component-extensions/dist/index.css";
 import MuiAlert from '@material-ui/lab/Alert';
-import toolsService from "../services/tools.service";
 import TokenService from "../services/token.service";
-import { formatdate } from "../helpers/DateCustom";
+import { formatdate, formatdatetime } from "../helpers/DateCustom";
+import outgoingService from "../services/outgoing.service";
 import FormSearchDate from "./FormSearchDate";
 
 function Alert(props) {
@@ -33,15 +33,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const Tools = () => {
+const OutgoingList = () => {
     const { user } = useContext(UserContext);
     const classes = useStyles();
     const [currentItem, setCurrentItem] = useState([]);
-    const [searchTitle, setSearchTitle] = useState("");
-    const [open, setOpen] = useState(false);
-    const [snackbarMsg, setSnackbarMsg] = useState("");
     const [searchStartDate, setSearchStartDate] = useState("");
     const [searchEndDate, setSearchEndDate] = useState("");
+    const [open, setOpen] = useState(false);
+    const [snackbarMsg, setSnackbarMsg] = useState("");
     //const [person, setPerson] = useState([]);
     const navigate = useNavigate();
 
@@ -63,9 +62,8 @@ const Tools = () => {
 
     const retrieveItem = () => {
         const params = getRequestParams(searchStartDate, searchEndDate);
-        toolsService.getAll(params).then(
+        outgoingService.getAll(params).then(
             (response) => {
-                console.log(response.data);
                 setCurrentItem(response.data);
             },
             (error) => {
@@ -91,79 +89,46 @@ const Tools = () => {
 
     const columns = [
         {
-            name: "ID",
-            selector: (row) => row.id,
+            name: "Date Check",
+            selector: (row) => formatdatetime(row.createdAt),
             sortable: true,
         },
         {
-            name: "Tools Type",
-            selector: (row) => row.tools_type.name,
+            name: "Model Name",
+            selector: (row) => row.model_name,
             sortable: true,
         },
         {
-            name: "Name",
-            selector: (row) => row.name,
+            name: "Serial Number",
+            selector: (row) => row.serial_no,
             sortable: true,
         },
         {
-            name: "Code",
-            selector: (row) => row.code,
+            name: "Lot Number",
+            selector: (row) => row.lot_number,
             sortable: true,
         },
         {
-            name: "Exp Date",
-            selector: (row) => formatdate(row.expired_date),
+            name: "Total Qty",
+            selector: (row) => row.total_qty,
             sortable: true,
         },
         {
-            name: "Indicator Exp",
-            selector: (row) => row.expired_date,
+            name: "Remark",
+            selector: (row) => row.note_remark,
             sortable: true,
-            cell: (row) => {
-                let indikator = "";
-                let titleIndikator = "";
-                const dateNow = new Date();
-                const date1 = new Date(row.createdAt);
-                const date2 = new Date(row.expired_date);
-                const prevDate50 = new Date(row.createdAt);
-                const prevDate80 = new Date(row.createdAt);
-
-                const diffTime = date2 - date1;
-                const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24));
-                const diffDays50 = Math.ceil(diffDays * 0.5);
-                const diffDays80 = Math.ceil(diffDays * 0.8);
-                const newDate50 = prevDate50.setDate(prevDate50.getDate() + diffDays50);
-                const newDate80 = prevDate80.setDate(prevDate80.getDate() + diffDays80);
-                if (dateNow < newDate50) {
-                    indikator = "green";
-                    titleIndikator = "OK";
-                } else if ((dateNow >= newDate50) && (dateNow < newDate80)) {
-                    indikator = "orange";
-                    titleIndikator = "Warning";
-                } else if (dateNow >= newDate80) {
-                    indikator = "red";
-                    titleIndikator = "Expired";
-                } else {
-                    indikator = "grey";
-                    titleIndikator = "Not Applicable";
-                }
-                return (
-                    <React.Fragment>
-                        <Tooltip title={titleIndikator} aria-label={titleIndikator}>
-                            <Fab size="small" style={{ backgroundColor: `${indikator}` }}>
-
-                            </Fab>
-                        </Tooltip>
-                    </React.Fragment>
-                )
-            },
+        },
+        {
+            name: "User",
+            selector: (row) => row.user,
+            sortable: true,
         },
         {
             name: "Action",
             cell: (row) => {
                 return (
                     <React.Fragment>
-                        <Link to={`/tools/form/${row.id}`} title="Detail">
+                        <Link to={`/outgoing/form/${row.id}`} title="Detail">
                             <IconButton color="primary" aria-label="Edit">
                                 <Edit size="small" />
                             </IconButton>
@@ -171,7 +136,7 @@ const Tools = () => {
                         <IconButton color="primary" title="Delete" aria-label="Delete" onClick={() => {
                             const r = window.confirm("Are you sure!");
                             if (r == true) {
-                                toolsService.remove(row.id)
+                                outgoingService.remove(row.id)
                                     .then((response) => {
                                         setOpen(true);
                                         setSnackbarMsg(response.data.message);
@@ -190,8 +155,6 @@ const Tools = () => {
         },
     ];
 
-    
-
     const handleClose = (event, reason) => {
         if (reason === "clickaway") {
             return;
@@ -207,6 +170,7 @@ const Tools = () => {
 
     const onChangeSearchStartDate = (e) => {
         const searchStartDate = e.target.value;
+
         setSearchStartDate(searchStartDate);
     }
 
@@ -226,58 +190,56 @@ const Tools = () => {
                 {!user && (
                     <Navigate to="/login" replace={true} />
                 )}
-                {/* {( (!user.roles.includes("ROLE_SUPERVISOR")) ) ? (
+                {/* {((!user.roles.includes("ROLE_SUPERVISOR"))) ? (
                     <Typography>Not Allowed</Typography>
                 ) : ( */}
-                    <React.Fragment>
-                        <Typography variant="h4" className={classes.title}>Tools</Typography>
-                        <Card>
-                            <CardContent>
-                                <FormSearchDate
-                                    labelStartDate="Start expired date"
-                                    searchStartDate={searchStartDate}
-                                    onChangeSearchStartDate={onChangeSearchStartDate}
-                                    labelEndDate="End expired date"
-                                    searchEndDate={searchEndDate}
-                                    onChangeSearchEndDate={onChangeSearchEndDate}
-                                    handleSearch={handleSearch}
-                                    urlDownload={process.env.REACT_APP_API + "tools/download"}
-                                    qrScanner={"tools/scan"}
-                                /> 
-                                <Typography variant="h6" className={classes.table}>
-                                    
-                                        <DataTable
-                                            columns={columns}
-                                            data={currentItem}
-                                            pagination
-                                        />
-                                    
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                        <Snackbar
-                            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                            open={open}
-                            autoHideDuration={5000}
-                            onClose={handleClose}
-                        >
-                            <Alert onClose={handleClose} severity="success">
-                                {snackbarMsg}
-                            </Alert>
-                        </Snackbar>
-                    </React.Fragment>
+                <React.Fragment>
+                    <Typography variant="h4" className={classes.title}>Sample Outgoing</Typography>
+                    <Card>
+                        <CardContent>
+                            <FormSearchDate
+                                labelStartDate="start date"
+                                searchStartDate={searchStartDate}
+                                onChangeSearchStartDate={onChangeSearchStartDate}
+                                labelEndDate="end date"
+                                searchEndDate={searchEndDate}
+                                onChangeSearchEndDate={onChangeSearchEndDate}
+                                handleSearch={handleSearch}
+                                urlDownload={process.env.REACT_APP_API + "outgoing/download"}
+                                qrScanner={"outgoing/scan"}
+                            />
+                            <Typography variant="h6" className={classes.table}>
+
+                                <DataTable
+                                    columns={columns}
+                                    data={currentItem}
+                                    pagination
+                                />
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                    <Snackbar
+                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                        open={open}
+                        autoHideDuration={5000}
+                        onClose={handleClose}
+                    >
+                        <Alert onClose={handleClose} severity="success">
+                            {snackbarMsg}
+                        </Alert>
+                    </Snackbar>
+                </React.Fragment>
                 {/* )} */}
-                <Link to={"/tools/form"}>
+                <Link to={"/outgoing/form"}>
                     <Tooltip title="Add" aria-label="add" >
                         <Fab color="primary" className={classes.fab}>
                             <AddIcon />
                         </Fab>
                     </Tooltip>
                 </Link>
-                
             </ToolsContext.Provider>
         </Container>
     );
 };
 
-export default Tools;
+export default OutgoingList;

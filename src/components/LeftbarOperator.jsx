@@ -99,6 +99,12 @@ const LeftbarOperator = () => {
                         <Typography className={classes.text} >Check Sheet</Typography>
                     </Link>
                 </div>
+                <div className={classes.nested}>
+                    <Link to="/outgoing-list" className={classes.link}>
+                        <Description className={classes.icon} />
+                        <Typography className={classes.text} >Sample Outgoing</Typography>
+                    </Link>
+                </div>
             </Collapse>
         </React.Fragment>
     );

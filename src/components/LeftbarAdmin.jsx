@@ -209,6 +209,13 @@ const LeftbarAdmin = () => {
                         <Typography className={classes.text} >Doc Inspection</Typography>
                     </Link>
                 </div>
+
+                <div className={classes.nested}>
+                    <Link to="/daily-report-admin" className={classes.link}>
+                        <Description className={classes.icon} />
+                        <Typography className={classes.text} >Daily Report Admin</Typography>
+                    </Link>
+                </div>
             </Collapse>
             {/* START MASTER */}
 

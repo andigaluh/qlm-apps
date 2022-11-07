@@ -14,7 +14,8 @@ const useStyles = makeStyles((theme) => ({
         paddingTop: theme.spacing(10)
     },
     avatar: {
-        backgroundColor: red[500],
+        //backgroundColor: red[500],
+        //backgroundColor: random_rgba(),
     },
     title: {
         marginBottom: theme.spacing(2)
@@ -25,6 +26,8 @@ const DocInstruction = () => {
     const { user, setUser } = useContext(UserContext);
     const classes = useStyles();
     const [currentItem, setCurrentItem] = useState([]);
+    const [countCurrentItem, setCountCurrentItem] = useState(0);
+    const [bgColorAvatar, setBgColorAvatar] = useState("");
     const navigate = useNavigate();
 
     const retrieveItem = () => {
@@ -32,6 +35,8 @@ const DocInstruction = () => {
             (response) => {
                 
                 setCurrentItem(response.data);
+                setCountCurrentItem(response.data.length)
+                console.log(response.data)
             },
             (error) => {
                 const _content =
@@ -64,6 +69,11 @@ const DocInstruction = () => {
         retrieveItem();
     }, []);
 
+    const random_rgba = () => {
+        var o = Math.round, r = Math.random, s = 255;
+        return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ', 0.9)';
+    }
+
     return (
         <Container className={classes.container} maxWidth="xl">
             {!user && (
@@ -72,10 +82,11 @@ const DocInstruction = () => {
             <Typography variant="h4" className={classes.title}>Document Instruction</Typography>
             <Grid container spacing={2}>
                 {currentItem && currentItem.map((v,i) => (
+                    
                     <Grid item xs={12} sm={4} key={i}>
                         <Card>
                             <CardHeader
-                                avatar={<Avatar aria-label="recipe" className={classes.avatar}>
+                                avatar={<Avatar aria-label="recipe" className={classes.avatar} style={{ backgroundColor: (i % 2) ? random_rgba() : random_rgba()  }}>
                                     {v.title.substring(0,1).toUpperCase()}
                                 </Avatar>}
                                 title={v.title}
@@ -92,6 +103,7 @@ const DocInstruction = () => {
                                         <GetApp />
                                     </IconButton>
                                 </a>
+                                <Typography variant="body2" color="textSecondary">By: Administrator</Typography>
                             </CardActions>
                         </Card>
                     </Grid>

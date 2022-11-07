@@ -129,7 +129,6 @@ const FormApprCheckMachine = () => {
             (response) => {
                 setApproveButton((response.data.supervisor_approval === true) ? true : false);
                 setPhotoName(response.data.photo_name);
-                console.log(response.data);
                 setMachine({
                     id: response.data.id,
                     inspection_date: formatdate(response.data.inspection_date),

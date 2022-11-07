@@ -123,6 +123,12 @@ const LeftbarSupervisor = () => {
                         <Typography className={classes.text} >Appr. Check Sheet</Typography>
                     </Link>
                 </div>
+                <div className={classes.nested}>
+                    <Link to="/outgoing-list" className={classes.link}>
+                        <Description className={classes.icon} />
+                        <Typography className={classes.text} >Sample Outgoing</Typography>
+                    </Link>
+                </div>
             </Collapse>
             {/* END OUTGOING */}
 
@@ -160,6 +166,12 @@ const LeftbarSupervisor = () => {
                     <Link to="/report/oqc" className={classes.link}>
                         <Description className={classes.icon} />
                         <Typography className={classes.text} >Outgoing</Typography>
+                    </Link>
+                </div>
+                <div className={classes.nested}>
+                    <Link to="/report/outgoing" className={classes.link}>
+                        <Description className={classes.icon} />
+                        <Typography className={classes.text} >Sample Outgoing</Typography>
                     </Link>
                 </div>
             </Collapse>

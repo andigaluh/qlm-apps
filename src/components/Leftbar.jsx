@@ -156,6 +156,13 @@ const Leftbar = () => {
                     <Typography className={classes.text} >Dashboard</Typography>
                 </Link>
             </div>
+
+            <div className={classes.item}>
+                <Link to="/quality-footprint" className={classes.link}>
+                    <Description className={classes.icon} />
+                    <Typography className={classes.text} >Quality Footprint</Typography>
+                </Link>
+            </div>
             
             <div className={classes.item}>
                 <Link to="/doc-instruction" className={classes.link}>
@@ -163,6 +170,8 @@ const Leftbar = () => {
                     <Typography className={classes.text} >Doc Instruction</Typography>
                 </Link>
             </div>
+
+            
 
             {user && user.roles.includes("ROLE_MANAGER") && (
                 <LeftbarManager />

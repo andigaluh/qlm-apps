@@ -316,7 +316,7 @@ const FormScheduleQc = () => {
                                 <ArrowBack />
                             </Fab>
                         </Link>
-                        <Typography variant="h4" className={classes.title}>Schedule QC's Form</Typography>
+                        <Typography variant="h4" className={classes.title}>QC Schedule Form</Typography>
                     </div>
                     <Card>
                         <CardContent>
